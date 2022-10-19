@@ -64,9 +64,11 @@ print('reg =', n,'noreg =', m)
 
 n, m = 0, 0
 hight = 150
+loc = true
+nosee = true
 
 for drone, weight in zip(drone_list,  drone_weight_list):
-  if weight >= 150 or hight > 100:
+  if hight > 100 or weight > 150 or loc = true or nosee = true :
     n += 1
     print("Need registration -", drone)
   else:
