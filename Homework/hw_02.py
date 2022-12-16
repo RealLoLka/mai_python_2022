@@ -11,7 +11,13 @@
 #  Прочитайте данные из файла pilot_path.json (лекция 9)
 
 # ВАШ КОД:
-...
+import json
+from pprint import pprint
+
+
+with open("E:/git/python/mai_python_2022/Homework/pilot_path.json") as f:
+	pilot_mission_dict = json.load(f)
+
 
 # =====================================
 # ЗАДАНИЕ 2: Расчет статистик
@@ -26,10 +32,14 @@
 # Пилоты в порядке убывания количества миссий: {'pilot3': 6, 'pilot8': 6, 'pilot6': 5, 'pilot2': 5, 'pilot7': 4, 'pilot9': 3, 'pilot5': 3, 'pilot4': 2, 'pilot1': 1}
 
 # ВАШ КОД:
-...
+
+mission_dict = {}
+
+for p in pilot_mission_dict.keys():
+	mission_dict[p] = len(pilot_mission_dict[p]['missions'])
 
 # подсказка: готовый код нужной вам сортировки есть здесь (Sample Solution-1:): https://www.w3resource.com/python-exercises/dictionary/python-data-type-dictionary-exercise-1.php
-print(f"Пилоты в порядке убывания количества миссий: {dict(sorted(pilot_mission_dict.items(), key=lambda item: item[1], reverse=True))}")
+print(f"Пилоты в порядке убывания количества миссий: {dict(sorted(mission_dict.items(), key=lambda item: item[1], reverse=True))}")
 
 # TODO 2-2) Получите и выведите список всех моделей дронов, которые были в файле pilot_path.json
 # Подсказка: внутри print используйте str.join(), чтобы соединить элементы списка (множества)
