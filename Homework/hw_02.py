@@ -15,7 +15,10 @@ import json
 from pprint import pprint
 
 
-with open("E:/git/python/mai_python_2022/Homework/pilot_path.json") as f:
+# with open("E:/git/python/mai_python_2022/Homework/pilot_path.json") as f:
+# 	pilot_mission_dict = json.load(f)
+
+with open("C:/Users/4iste/Desktop/Stady/Magistr/1k1s/Github/mai_python_2022/Homework/pilot_path.json") as f:
 	pilot_mission_dict = json.load(f)
 
 
@@ -38,6 +41,7 @@ mission_dict = {}
 for p in pilot_mission_dict.keys():
 	mission_dict[p] = len(pilot_mission_dict[p]['missions'])
 
+
 # подсказка: готовый код нужной вам сортировки есть здесь (Sample Solution-1:): https://www.w3resource.com/python-exercises/dictionary/python-data-type-dictionary-exercise-1.php
 print(f"Пилоты в порядке убывания количества миссий: {dict(sorted(mission_dict.items(), key=lambda item: item[1], reverse=True))}")
 
@@ -48,9 +52,18 @@ print(f"Пилоты в порядке убывания количества м�
 # Полеты совершались на дронах следующих моделей: DJI Mavic 2 Pro, DJI Mavic 3, DJI Inspire 2, DJI Mavic 2 Zoom, DJI Mavic 2 Enterprise Advanced
 
 # ВАШ КОД:
-...
+drone_list = list()
+count = 0
+
+lst_mission_dict = list(mission_dict.items())
+
+for count in lst_mission_dict[:-1]:
+	for c in range(count[1]):
+		#drone_list.append(pilot_mission_dict[count[0]]['missions'][count[1]]['drone'])
+		drone_list.append(pilot_mission_dict[count[0]]['missions'][c]['drone'])
+
 # вывод результата (допишите код)
-print(f'Полеты совершались на дронах следующих моделей: {", ".join(...)}')
+print(f'Полеты совершались на дронах следующих моделей: {", ".join(set(drone_list))}')
 
 # TODO 2-3) Получите список миссий для каждой модели дронов, которые были в файле pilot_path.json,
 # и выведите на экран модель дрона и количество миссий, которые он отлетал
@@ -63,9 +76,10 @@ print(f'Полеты совершались на дронах следующих
 # Дрон DJI Mavic 2 Zoom отлетал 9 миссий
 
 # ВАШ КОД:
-...
+
 # вывод результата (допишите код)
-print(f'Дрон {...} отлетал {...} миссий')
+for drone in set(drone_list):
+	print(f'Дрон {drone} отлетал {drone_list.count(drone)} миссий')
 
 # =====================================
 # ЗАДАНИЕ 3: Создание классов
