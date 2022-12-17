@@ -15,11 +15,11 @@ import json
 from pprint import pprint
 
 
-# with open("E:/git/python/mai_python_2022/Homework/pilot_path.json") as f:
-# 	pilot_mission_dict = json.load(f)
-
-with open("C:/Users/4iste/Desktop/Stady/Magistr/1k1s/Github/mai_python_2022/Homework/pilot_path.json") as f:
+with open("E:/git/python/mai_python_2022/Homework/pilot_path.json") as f:
 	pilot_mission_dict = json.load(f)
+
+# with open("C:/Users/4iste/Desktop/Stady/Magistr/1k1s/Github/mai_python_2022/Homework/pilot_path.json") as f:
+# 	pilot_mission_dict = json.load(f)
 
 
 # =====================================
@@ -35,15 +35,13 @@ with open("C:/Users/4iste/Desktop/Stady/Magistr/1k1s/Github/mai_python_2022/Home
 # Пилоты в порядке убывания количества миссий: {'pilot3': 6, 'pilot8': 6, 'pilot6': 5, 'pilot2': 5, 'pilot7': 4, 'pilot9': 3, 'pilot5': 3, 'pilot4': 2, 'pilot1': 1}
 
 # ВАШ КОД:
-
-mission_dict = {}
+pilot_dict = {}
 
 for p in pilot_mission_dict.keys():
-	mission_dict[p] = len(pilot_mission_dict[p]['missions'])
-
+	pilot_dict[p] = len(pilot_mission_dict[p]['missions'])
 
 # подсказка: готовый код нужной вам сортировки есть здесь (Sample Solution-1:): https://www.w3resource.com/python-exercises/dictionary/python-data-type-dictionary-exercise-1.php
-print(f"Пилоты в порядке убывания количества миссий: {dict(sorted(mission_dict.items(), key=lambda item: item[1], reverse=True))}")
+print(f"Пилоты в порядке убывания количества миссий: {dict(sorted(pilot_dict.items(), key=lambda item: item[1], reverse=True))}")
 
 # TODO 2-2) Получите и выведите список всех моделей дронов, которые были в файле pilot_path.json
 # Подсказка: внутри print используйте str.join(), чтобы соединить элементы списка (множества)
@@ -52,18 +50,18 @@ print(f"Пилоты в порядке убывания количества м�
 # Полеты совершались на дронах следующих моделей: DJI Mavic 2 Pro, DJI Mavic 3, DJI Inspire 2, DJI Mavic 2 Zoom, DJI Mavic 2 Enterprise Advanced
 
 # ВАШ КОД:
-drone_list = list()
-count = 0
+drone_list = []
+lst_mission_dict = list(pilot_dict.items())
 
-lst_mission_dict = list(mission_dict.items())
-
-for count in lst_mission_dict[:-1]:
+for count in lst_mission_dict[:]:
 	for c in range(count[1]):
-		#drone_list.append(pilot_mission_dict[count[0]]['missions'][count[1]]['drone'])
 		drone_list.append(pilot_mission_dict[count[0]]['missions'][c]['drone'])
+
 
 # вывод результата (допишите код)
 print(f'Полеты совершались на дронах следующих моделей: {", ".join(set(drone_list))}')
+
+
 
 # TODO 2-3) Получите список миссий для каждой модели дронов, которые были в файле pilot_path.json,
 # и выведите на экран модель дрона и количество миссий, которые он отлетал
@@ -76,8 +74,9 @@ print(f'Полеты совершались на дронах следующих
 # Дрон DJI Mavic 2 Zoom отлетал 9 миссий
 
 # ВАШ КОД:
-
 # вывод результата (допишите код)
+drone_mis = {}
+
 for drone in set(drone_list):
 	print(f'Дрон {drone} отлетал {drone_list.count(drone)} миссий')
 
@@ -98,26 +97,36 @@ class Aircraft:
 class UAV:
 	def __init__(self):
 		self._has_autopilot = True
-		...
+		self._missions = list()
 
 	# напишите код для декоратора атрибута _missions
-	...
+	@property
+	def missions(self):
+		return self._missions
+	
+	@missions.setter
+	def missions(self, mis):
+		self._missions.append(mis)
 
 	# напишите публичный метод count_missions
-	...
+	def count_missions(self):
+		return len(self._missions)
 
 class MultirotorUAV(Aircraft, UAV):
 	def __init__(self, weight, model, brand):
 		super().__init__(weight)
 		UAV.__init__(self)
 		self.__weight = weight
-		...
+		self.__model = model
+		self.__brand = brand
 
 	# напишите публичный метод get_info
-	...
-
+	def get_info(self):
+		print(f"Инфо: модель {self.get_model()}; бренд: {self.__brand}, масса: {self.__weight}; отлетал {self.count_missions()} миссий")
 	# напишите публичный метод get_model
-	...
+	def get_model(self):
+		return self.__model
+
 
 # =====================================
 # ЗАДАНИЕ 4: Работа с экземплярами классов
@@ -137,8 +146,22 @@ drone_catalog = {
 	"DJI Mavic 3": {"weight":1000, "brand":"DJI"}
 }
 
+
+
+
+drone_clist = []
+
 # ВАШ КОД:
-...
+for drone in drone_catalog:
+	drone = MultirotorUAV(weight = drone_catalog[drone]["weight"], model = drone , brand = drone_catalog[drone]["brand"])
+	for p in pilot_mission_dict:
+		for mis in pilot_mission_dict[p]['missions']:
+			if drone.get_model() == mis['drone']:
+				drone.missions = mis['mission']
+	drone_clist.append(drone)
+
+
+
 
 # TODO 4-4
 # Напишите код, который выводит информацию по заданной модели дрона. Состав информации: масса, производитель, количество отлетанных миссий
@@ -151,4 +174,6 @@ drone_catalog = {
 
 # ВАШ КОД:
 user_unput = input("Введите модель дрона (полностью) в любом регистре\n")
-...
+for drone in drone_clist:
+	if user_unput.lower() == drone.get_model().lower():
+		drone.get_info()
