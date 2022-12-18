@@ -7,33 +7,101 @@
 # Возьмите код из предыдущего ДЗ
 # Добавьте в класс MultirotorUAV атрибут incidents и внесите туда информацию обо всех найденных происшествиях для этой модели
 # Не забудьте, что атрибут добавляется при помощи декоратора
+import json
+import csv
+import re
+from pprint import pprint
 
 class Aircraft:
-	...
+	def __init__(self, weight):
+		self._weight = weight
 
 class UAV:
-	...
+	def __init__(self):
+		self._has_autopilot = True
+		self._missions = list()
+
+	@property
+	def missions(self):
+		return self._missions
+	
+	@missions.setter
+	def missions(self, mis):
+		self._missions.append(mis)
+
+	def count_missions(self):
+		return len(self._missions)
 
 class MultirotorUAV(Aircraft, UAV):
 	def __init__(self, weight, model, brand):
-		...
-		# добавьте приватный атрибут incidents
-		...
+		super().__init__(weight)
+		UAV.__init__(self)
+		self.__weight = weight
+		self.__model = model
+		self.__brand = brand
+		self.__incidents = [] 		# добавьте приватный атрибут incidents
 
-	...
+	def get_info(self):
+		print(f"Инфо: модель {self.get_model()}; бренд: {self.__brand}, масса: {self.__weight}; отлетал {self.count_missions()} миссий")
+
+	def get_model(self):
+		return self.__model
 
 	# напишите код декоратора для атрибута incidents. Не забудьте сначала добавить приватный атрибут в класс
-	...
-
 	# напишите публичный метод add_incident, который добавляет инцидент в список инцидентов для данной модели дрона
-	...
+
+	@property
+	def incidents(self):
+		return self.__incidents
+	
+	@incidents.setter
+	def incidents(self, inc):
+		self.__incidents.append(inc)
 
 	# напишите публичный метод save_data, который сохраняет информацию о дроне в файл json
-	...
-
+	
+	def save_data(self):
+		data = {'model': self.get_model(), 'brand' : self.__brand, 'weight' : self.__weight, 'missions' : [], 'incidents' : []		}
+		for mis in self.missions:
+			data['missions'].append(mis)
+		for inc in self.__incidents:
+			data['incidents'].append(inc)
+		with open(f"MultirotorUAV_{self.get_model()}.json", 'w') as f:
+			json.dump(data, f)
 
 # ВАШ КОД из предыдущего ДЗ, необходимый для решения этого ДЗ (чтение данных о пилотах, сбор информации о дронах и пр.):
-...
+
+with open("E:/git/python/mai_python_2022/Homework/pilot_path.json") as f:
+	pilot_mission_dict = json.load(f)
+
+drone_catalog = {
+	"DJI Mavic 2 Pro": {"weight":903, "brand":"DJI"},
+	"DJI Mavic 2 Zoom": {"weight":900, "brand":"DJI"},
+	"DJI Mavic 2 Enterprise Advanced": {"weight":920, "brand":"DJI"},
+	"DJI Inspire 2": {"weight":1500, "brand":"DJI"},
+	"DJI Mavic 3": {"weight":1000, "brand":"DJI"}
+}
+
+
+drone_clist = []
+
+for drone in drone_catalog:
+	drone = MultirotorUAV(weight = drone_catalog[drone]["weight"], model = drone , brand = drone_catalog[drone]["brand"])
+	for p in pilot_mission_dict:
+		for mis in pilot_mission_dict[p]['missions']:
+			if drone.get_model() == mis['drone']:
+				drone.missions = mis['mission']
+	drone_clist.append(drone)
+
+
+
+user_unput = input("Введите модель дрона (полностью) в любом регистре\n")
+for drone in drone_clist:
+	if user_unput.lower() == drone.get_model().lower():
+		drone.get_info()
+
+
+
 
 # =====================================
 # ЗАДАНИЕ 2: Файлы - CSV
@@ -42,7 +110,18 @@ class MultirotorUAV(Aircraft, UAV):
 # Проверьте по моделям (названия моделей возьмите из экземпляров класса MultirotorUAV), какие из них участвовали в авиапроисшествиях
 
 # ВАШ КОД чтения данных из файла:
-...
+
+incidents = []
+
+with open("E:/git/python/mai_python_2022/Homework/faa_incidents.csv") as f:
+	reader = csv.DictReader(f)
+	for r in reader:
+		incidents.append(r['Details'])
+
+#Почему-то данные об одном проишествии не в последней колонке, отдельно дабавил.
+
+incidents.append('''ON JULY 15, 2020 AT 1050 EDT, A DJI, MAVIC 2 ZOOM L1Z UAS, SERIAL # 0M6TG85R0A04ZP, UA FA REGISTRATION # FA3RE7RNWP, REGISTERED TO ^PRIVACY DATA OMITTED^ (PIC), REMOTE PILOT CERTIFICATE ^PRIVACY DATA OMITTED^, LOST CONTROLLED FLIGHT IN THE AREA OF ^PRIVACY DATA OMITTED^ AND HIT A BLACK NISSAN PICKUP TRUCK BEARING ^PRIVACY DATA OMITTED^ TRAVELING ALONG TAMIAMI TRAIL IN NORTH PORT CAUSING PROPERTY DAMAGE. THE UAS WAS FLOWN ON A RECREATIONAL FLIGHT OVER A CONSTRUCTION SITE AT ^PRIVACY DATA OMITTED^, USING AN AUTOMATIC FREQUENCY SELECTION FEATURE THAT RANGED FROM 2.400 - 2.4835 GHZ; 5.725 - 5.850 GHZ. WEATHER CONDITIONS WERE CLEAR AND ARE NOT CONSIDERED A FACTOR. THE UAS WAS DESTROYED AND THE PROPERTY DAMAGE WAS GREATER THAN $500. THERE WERE NO PERSONAL INJURIES. THE FLIGHT ORIGINATED FROM ^PRIVACY DATA OMITTED^, EARLIER THAT DAY. WHILE THIS INCIDENT MEETS FAA UAS ACCIDENT CRITERIA, IT DOES NOT MEET THE NTSB?S UAS ACCIDENT CRITERIA. THE NTSB WOULD NOT ISSUE A NTSB ACCIDENT NUMBER FOR THIS EVENT. THEREFORE, THIS EVENT WILL BE CLASSIFIED AN INCIDENT.''')
+
 
 # =====================================
 # ЗАДАНИЕ 3: Классы
@@ -51,8 +130,22 @@ class MultirotorUAV(Aircraft, UAV):
 # Информацию сохраните в атрибут incidents (используйте декораторы)
 # Подсказка: вот так вы получаете названия модели для каждого экземпляра класса MultirotorUAV
 # Экземпляры все так же находятся в списке (например, drones_cls_list)
-for drone_cls in drones_cls_list:
+for drone_cls in drone_clist:
 	drone = drone_cls.get_model()
+	drone = drone.split(' ',1)[1]
+	pattern = re.compile(fr'\b{drone}\b', flags=re.I)
+	i = 0
+	for r in incidents:
+		inc = r
+		if isinstance(inc, str):
+			res = pattern.search(inc)
+			if res is not None:
+				i += 1
+				drone_cls.incidents = r
+	print(f'Инциденты c {drone} = {i}')
+	print(drone_cls.incidents)
+	drone_cls.save_data()
+	
 
 # TODO 3-2 - Добавьте в класс MultirotorUAV публичный метод save_data, который сохраняет статистику по дрону в файл
 # Внимание! Метод save_data не принимает параметры. Название файла сформируйте как: название класса + название модели + расширение .json
