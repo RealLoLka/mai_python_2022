@@ -142,8 +142,11 @@ for drone_cls in drone_clist:
 			if res is not None:
 				i += 1
 				drone_cls.incidents = res.group()
-	print(f'Инциденты c {drone} = {i}')
-	print(drone_cls.incidents)
+				#print(i, res.group())
+	print(f'Всего инцедентов c {drone} = {i}')
+	if drone_cls is not None:
+		for a, d in enumerate(drone_cls.incidents):
+			print(f'Инцедент №{a + 1} : {d}')
 	drone_cls.save_data()
 	
 
