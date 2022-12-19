@@ -71,7 +71,7 @@ class MultirotorUAV(Aircraft, UAV):
 
 # ВАШ КОД из предыдущего ДЗ, необходимый для решения этого ДЗ (чтение данных о пилотах, сбор информации о дронах и пр.):
 
-with open("E:/git/python/mai_python_2022/Homework/pilot_path.json") as f:
+with open("C:/Users/4iste/Desktop/Stady/Magistr/1k1s/Github/mai_python_2022/Homework/pilot_path.json") as f:
 	pilot_mission_dict = json.load(f)
 
 drone_catalog = {
@@ -113,7 +113,7 @@ for drone in drone_clist:
 
 incidents = []
 
-with open("E:/git/python/mai_python_2022/Homework/faa_incidents.csv") as f:
+with open("C:/Users/4iste/Desktop/Stady/Magistr/1k1s/Github/mai_python_2022/Homework/faa_incidents.csv") as f:
 	reader = csv.DictReader(f)
 	for r in reader:
 		incidents.append(r['Details'])
@@ -133,7 +133,7 @@ incidents.append('''ON JULY 15, 2020 AT 1050 EDT, A DJI, MAVIC 2 ZOOM L1Z UAS, S
 for drone_cls in drone_clist:
 	drone = drone_cls.get_model()
 	drone = drone.split(' ',1)[1]
-	pattern = re.compile(fr'\b{drone}\b', flags=re.I)
+	pattern = re.compile(fr'[A-Z][^\.!?]+({drone})(?(1)[^\.!?]+[\.!?])', flags=re.I)
 	i = 0
 	for r in incidents:
 		inc = r
@@ -141,7 +141,7 @@ for drone_cls in drone_clist:
 			res = pattern.search(inc)
 			if res is not None:
 				i += 1
-				drone_cls.incidents = r
+				drone_cls.incidents = res.group()
 	print(f'Инциденты c {drone} = {i}')
 	print(drone_cls.incidents)
 	drone_cls.save_data()
